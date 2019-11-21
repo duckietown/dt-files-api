@@ -23,7 +23,7 @@ def main():
   os.chdir(wd)
 
   # Start the files API
-  files_api = FilesAPI(data_dir, API_PORT)
+  files_api = FilesAPI(data_dir, ('', API_PORT))
   api_daemon = threading.Thread(name='files_api_server', target=files_api.serve_forever)
   api_daemon.setDaemon(True)
   print('Starting API server...')

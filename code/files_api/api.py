@@ -1,3 +1,4 @@
+import os
 import mimetypes
 from dt_class_utils import DTProcess
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -6,7 +7,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class FilesAPI(DTProcess):
 
-  def __init__(self, data_dir, port):
+  def __init__(self, data_dir, bind):
     DTProcess.__init__(self)
     # get data directory
     self.data_dir = data_dir
@@ -16,7 +17,7 @@ class FilesAPI(DTProcess):
       (os.environ['EXCLUDE_PATHS'] if 'EXCLUDE_PATHS' in os.environ else "").split(',')
     )
     # http server
-    self.httpd = FilesAPIHTTPServer(port)
+    self.httpd = FilesAPIHTTPServer(bind)
 
 
   def serve_forever(self):
@@ -30,8 +31,8 @@ class FilesAPI(DTProcess):
 
 class FilesAPIHTTPServer(HTTPServer):
 
-    def __init__(self, server_address):
-        HTTPServer.__init__(self, server_address, FilesAPIHTTPRequestHandler)
+    def __init__(self, server_bind):
+        HTTPServer.__init__(self, server_bind, FilesAPIHTTPRequestHandler)
 
 
 
