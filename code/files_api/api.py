@@ -114,16 +114,7 @@ class FilesAPIHTTPRequestHandler(BaseHTTPRequestHandler):
         transfer_bytes(archive.data(), self.wfile)
 
     def do_POST(self):
-        # get requested file from request object
-        file = self.path
-        self.server.logger.debug(f'Requesting: POST:[{file}] w/ args {None}')
-        self.set_headers()
-
-    def do_HEAD(self):
-        self.server.logger.debug(f'Requesting: HEAD')
-        self.set_headers()
-
-    def log_message(self, format, *args):
+        filepath_dest = self.path.split('?')[0]
         return
 
 
