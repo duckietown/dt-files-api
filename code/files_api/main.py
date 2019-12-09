@@ -2,11 +2,10 @@ import os
 import sys
 import signal
 import threading
-from files_api import applogger, FilesAPI, ListingsServer
+from files_api import applogger, FilesAPI
 from dt_avahi_utils import enable_service, disable_service
 
-LISTINGS_PORT = 8082
-API_PORT = 8083
+API_PORT = 8082
 DEFAULT_DATA_DIR = '/data'
 _is_shutdown = False
 
@@ -14,15 +13,6 @@ _is_shutdown = False
 def main():
   data_dir = os.environ['DATA_DIR'] if 'DATA_DIR' in os.environ else DEFAULT_DATA_DIR
   wd = os.getcwd()
-
-  # Start the server in a new thread
-  applogger.info('Starting Listings server...')
-  listings_httpd = ListingsServer(('', LISTINGS_PORT), data_dir)
-  listings_daemon = threading.Thread(name='files_listings_server', target=listings_httpd.serve_forever)
-  listings_daemon.setDaemon(True)
-  enable_service('dt.files-listings')
-  listings_daemon.start()
-  os.chdir(wd)
 
   # Start the files API
   applogger.info('Starting API server...')
@@ -39,11 +29,8 @@ def main():
       return
     _is_shutdown = True
     applogger.info('Shutting down...')
-    listings_httpd.shutdown()
     files_api.shutdown()
-    # Block on the threads
-    listings_daemon.join()
-    disable_service('dt.files-listings')
+    # Block on the thread
     api_daemon.join()
     disable_service('dt.files-api')
 

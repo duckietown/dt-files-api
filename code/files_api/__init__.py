@@ -10,4 +10,4 @@ if 'DEBUG' in os.environ and bool(os.environ['DEBUG']):
   applogger.setLevel(logging.DEBUG)
 
 # load app components
-from .api import FilesAPI, ListingsServer
+from .api import FilesAPI
