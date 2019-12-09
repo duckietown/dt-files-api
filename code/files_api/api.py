@@ -113,8 +113,11 @@ class FilesAPIHTTPRequestHandler(BaseHTTPRequestHandler):
         # send file
         transfer_bytes(archive.data(), self.wfile)
 
+    # TODO: Use POST to receive an archive (or a plain blob) and extract/dump to disk
     def do_POST(self):
-        filepath_dest = self.path.split('?')[0]
+        parts = (self.path + '?').split('?')
+        filepath_dest, args_str = parts[0], parts[1]
+        args = parse_args(args_str)
         return
 
 
