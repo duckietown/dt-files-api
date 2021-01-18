@@ -32,15 +32,13 @@ class Archive(ABC):
 
 class Zip(Archive):
 
-    #TODO: this is wrong, it flattens directory structures
-
     def add(self, filepath, arcname, logger):
         if not os.path.exists(filepath):
             raise ValueError(f'File {filepath} not found.')
-        for file, aname in listfiles(filepath, arcname):
+        for file, aname in self.listfiles(filepath, arcname):
             mode = "a" if self.size() else "w"
-            logger.debug(
-                f'> Adding {file} -> {aname} ({sizeof_fmt(os.path.getsize(file))}) to archive...')
+            logger.debug(f'> Adding {file} -> {aname} '
+                         f'({sizeof_fmt(os.path.getsize(file))}) to archive...')
             with zipfile.ZipFile(self._buffer, mode, zipfile.ZIP_DEFLATED, False) as zip_file:
                 zip_file.write(file, aname)
 
@@ -50,16 +48,27 @@ class Zip(Archive):
     def extension(self):
         return 'zip'
 
+    @staticmethod
+    def listfiles(filepath, arcpath):
+        # filepath is a FILE
+        if os.path.isfile(filepath):
+            yield filepath, arcpath
+        # filepath is a DIRECTORY
+        if os.path.isdir(filepath):
+            for root, _, files in os.walk(filepath):
+                for filename in files:
+                    arcname = os.path.join(arcpath, os.path.relpath(root, filepath), filename)
+                    yield os.path.join(root, filename), arcname
+
 
 class Tar(Archive):
-
 
     def add(self, filepath, arcname, logger):
         if not os.path.exists(filepath):
             raise ValueError(f'File {filepath} not found.')
         mode = "a" if self.size() else "w"
-        logger.debug(
-            f'> Adding {filepath} -> {arcname} ({sizeof_fmt(os.path.getsize(filepath))}) to archive...')
+        logger.debug(f'> Adding {filepath} -> {arcname} '
+                     f'({sizeof_fmt(os.path.getsize(filepath))}) to archive...')
         with tarfile.TarFile(fileobj=self._buffer, mode=mode) as tar_file:
             tar_file.add(filepath, arcname)
 
@@ -68,17 +77,6 @@ class Tar(Archive):
 
     def extension(self):
         return 'tar.gz'
-
-
-def listfiles(filepath, arcpath):
-    if os.path.isfile(filepath):
-        yield filepath, arcpath
-    # ---
-    if os.path.isdir(filepath):
-        for root, _, files in os.walk(filepath):
-            for filename in files:
-                arcname = os.path.join(arcpath, os.path.basename(root), filename)
-                yield os.path.join(root, filename), arcname
 
 
 def sizeof_fmt(num, suffix='B'):
