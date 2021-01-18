@@ -1,3 +1,4 @@
+import copy
 import os
 import io
 import zipfile
@@ -22,12 +23,28 @@ class Archive(ABC):
     def extension(self):
         pass
 
+    @abstractmethod
+    def extract_all(self, destination: str):
+        pass
+
     def data(self):
         self._buffer.seek(0)
         return self._buffer
 
     def size(self):
         return self._buffer.getbuffer().nbytes
+
+    @classmethod
+    def from_buffer(cls, buffer: io.BytesIO) -> 'Archive':
+        archive = cls()
+        archive._buffer = copy.deepcopy(buffer)
+        return archive
+
+
+class ArchiveError(BaseException):
+
+    def __init__(self, message: str):
+        self.message = message
 
 
 class Zip(Archive):
@@ -47,6 +64,15 @@ class Zip(Archive):
 
     def extension(self):
         return 'zip'
+
+    def extract_all(self, destination: str):
+        os.makedirs(destination, exist_ok=True)
+        # extract all
+        try:
+            with zipfile.ZipFile(self._buffer, 'r', zipfile.ZIP_DEFLATED, False) as zip_file:
+                zip_file.extractall(destination)
+        except zipfile.BadZipfile as e:
+            raise ArchiveError(str(e))
 
     @staticmethod
     def listfiles(filepath, arcpath):
@@ -77,6 +103,15 @@ class Tar(Archive):
 
     def extension(self):
         return 'tar.gz'
+
+    def extract_all(self, destination: str):
+        os.makedirs(destination, exist_ok=True)
+        # extract all
+        try:
+            with tarfile.TarFile(fileobj=self._buffer, mode='r') as tar_file:
+                tar_file.extractall(destination)
+        except tarfile.ReadError as e:
+            raise ArchiveError(str(e))
 
 
 def sizeof_fmt(num, suffix='B'):
