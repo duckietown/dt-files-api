@@ -119,7 +119,8 @@ class FilesAPIHTTPRequestHandler(SimpleHTTPRequestHandler):
         filepath_dest = os.path.join(server.data_dir, filepath_dest.strip('/'))
         # validate format (if necessary)
         if 'format' in args and args['format'] not in FORMAT_TO_ARCHIVE:
-            return self.send_error(400, 'Bad Request', f'Format {args["format"]} not supported')
+            return self.send_error(400, 'Bad Request', f'Format {args["format"]} not supported',
+                                   close=True)
         # format is given, we need to extract an archive
         body_len = int(self.headers['Content-Length'])
         body = io.BytesIO(self.rfile.read(body_len))
@@ -131,12 +132,12 @@ class FilesAPIHTTPRequestHandler(SimpleHTTPRequestHandler):
                                     f"onto `{filepath_dest}`...")
                 archive.extract_all(filepath_dest)
             except ArchiveError as e:
-                return self.send_error(400, 'Bad Request', e.message)
-            return self.send_response(200, 'OK')
+                return self.send_error(400, 'Bad Request', e.message, close=True)
+            return self.send_response(200, 'OK', close=True)
         # format is not given, we are working with a single file
         if os.path.isdir(filepath_dest):
             return self.send_error(400, 'Bad Request', f"The path `{filepath_dest}` "
-                                                       f"points to a directory")
+                                                       f"points to a directory", close=True)
         # dump the body into a file
         server.logger.debug(f"Writing a body of size {body_len}B into `{filepath_dest}`")
         try:
@@ -144,20 +145,24 @@ class FilesAPIHTTPRequestHandler(SimpleHTTPRequestHandler):
             with open(filepath_dest, 'wb') as fout:
                 transfer_bytes(body, fout)
         except BaseException as e:
-            return self.send_error(400, 'Bad Request', str(e))
+            return self.send_error(400, 'Bad Request', str(e), close=True)
         # ---
-        return self.send_response(200, 'OK')
+        return self.send_response(200, 'OK', close=True)
 
-    def send_response(self, code: int, message: Optional[str] = ...) -> None:
+    def send_response(self, code: int, message: Optional[str] = ..., close: bool = False) -> None:
         super(FilesAPIHTTPRequestHandler, self).send_response(code, message)
-        # this is a one-shot communication, always close at the end
-        self.end_headers()
+        # ---
+        if close:
+            # this is a one-shot communication, close at the end
+            self.end_headers()
 
-    def send_error(self, code: int, message: Optional[str] = ..., explain: Optional[str] = ...) \
-            -> None:
+    def send_error(self, code: int, message: Optional[str] = ..., explain: Optional[str] = ...,
+                   close: bool = False) -> None:
         super(FilesAPIHTTPRequestHandler, self).send_error(code, message, explain)
-        # this is a one-shot communication, always close at the end
-        self.end_headers()
+        # ---
+        if close:
+            # this is a one-shot communication, close at the end
+            self.end_headers()
 
 
 def parse_args(args_str):
