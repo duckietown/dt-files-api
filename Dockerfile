@@ -7,13 +7,14 @@ ARG ICON="folder"
 
 # ==================================================>
 # ==> Do not change the code below this line
+ARG ARCH
 ARG DISTRO=daffy
-ARG BASE_TAG=${DISTRO}
+ARG DOCKER_REGISTRY=docker.io
 ARG BASE_IMAGE=dt-commons
+ARG BASE_TAG=${DISTRO}-${ARCH}
 ARG LAUNCHER=default
 
 # define base image
-ARG DOCKER_REGISTRY=docker.io
 FROM ${DOCKER_REGISTRY}/duckietown/${BASE_IMAGE}:${BASE_TAG} as BASE
 
 # recall all arguments
