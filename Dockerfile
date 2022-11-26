@@ -1,7 +1,7 @@
 # parameters
 ARG REPO_NAME="dt-files-api"
 ARG DESCRIPTION="Provides an HTTP API to the `/data` directory of a Duckietown device"
-ARG MAINTAINER="Andrea F. Daniele (afdaniele@ttic.edu)"
+ARG MAINTAINER="Andrea F. Daniele (afdaniele@duckietown.com)"
 # pick an icon from: https://fontawesome.com/v4.7.0/icons/
 ARG ICON="folder"
 
