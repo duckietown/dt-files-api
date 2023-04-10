@@ -1,2 +1,2 @@
 # LIST YOUR PYTHON3 PACKAGES HERE
-dt-data-api-ente>=0.1.10
+# NOTE: only place non-Duckietown libraries here; pin versions only if necessary
