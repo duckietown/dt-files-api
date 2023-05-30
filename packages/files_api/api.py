@@ -10,6 +10,7 @@ class FilesAPI(Flask):
 
     def __init__(self):
         super(FilesAPI, self).__init__(__name__)
+        self.url_map.strict_slashes = False
         # register blueprints
         self.register_blueprint(data)
         # self.register_blueprint(backup)
