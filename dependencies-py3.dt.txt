@@ -2,4 +2,4 @@
 # NOTE: only place Duckietown libraries here; these libraries will be resolved to the latest available version and pinned; pin a specific version only if necessary
 
 # DCSS python library
-dt-data-api-ente>=0.1.10
+dt-data-api>=2,<3
