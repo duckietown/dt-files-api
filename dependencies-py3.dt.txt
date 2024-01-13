@@ -2,4 +2,5 @@
 # NOTE: only place Duckietown libraries here; these libraries will be resolved to the latest available version and pinned; pin a specific version only if necessary
 
 # DCSS python library
-dt-data-api-daffy>=0.1.10
+# constraints: >=0.1.10
+dt-data-api-daffy==1.2.0
