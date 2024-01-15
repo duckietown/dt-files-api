@@ -1,0 +1,8 @@
+name: "dt-files-api"
+maintainer:
+    name: "Andrea F. Daniele"
+    email: "afdaniele@duckietown.com"
+description: "Provides an HTTP API to the /data directory of a Duckietown device"
+version: 4.0.2
+# pick an icon from: https://fontawesome.com/v4.7.0/icons/
+icon: folder
